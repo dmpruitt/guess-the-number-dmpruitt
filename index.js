@@ -20,6 +20,8 @@ let guess = randomNum(1, 100); //assigns the random guess to a variable
   let answer = await ask(`Is your number ${guess}?`); 
 if (answer[0].toLowerCase() === 'y') { //checks to see if first letter of response is a 'y'
   console.log(`Your number was ${guess}`)
+} else if ( answer[0].toLowerCase() === 'n') {
+  answer = await ask("Is the number higher or lower?")
 }
 
 
