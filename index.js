@@ -16,19 +16,25 @@ function randomNum(min, max) {
 start();
 
 async function start() {
-let guess = randomNum(1, 100); //assigns the random guess to a variable
-  let answer = await ask(`Is your number ${guess}?`); 
-if (answer[0].toLowerCase() === 'y') { //checks to see if first letter of response is a 'y'
-  console.log(`Your number was ${guess}`)
-} else if ( answer[0].toLowerCase() === 'n') {
-  answer = await ask("Is the number higher or lower?")
+  let rangeLow = 1;
+  let rangeHigh = 100;
+  let guess = randomNum(rangeLow, rangeHigh); //assigns the random guess to a variable
+  let correct = false;
+
+  while (correct === false) {
+    let answer = await ask(`Is your number ${guess}?`);
+
+    if (answer[0].toLowerCase() === "y") {
+      console.log(`Your number was ${guess}!`); //checks to see if first letter of response is a 'y'
+      correct = true;
+    } else {
+      answer = await ask("Is the number higher or lower?");
+      if (answer[0]toLowerCase() === "h"){
+        rangeHigh = answer;
+console.log((rangeHigh - rangeLow)/2 + rangeLow)
+
+      }
+    }
+  }
+  process.exit();
 }
-
-
-
-
-  
-  process.exit();  
-}
-
-
