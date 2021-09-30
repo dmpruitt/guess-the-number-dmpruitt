@@ -7,12 +7,18 @@ function ask(questionText) {
   });
 }
 
+// Random number generator
+function randomNum(min, max) {
+  let range = max - min + 1;
+  return Math.floor(Math.random() * range) + min;
+}
+
 start();
 
 async function start() {
-  console.log("Let's play a game where you (human) make up a number and I (computer) try to guess it.")
-  let secretNumber = await ask("What is your secret number?\nI won't peek, I promise...\n");
-  console.log('You entered: ' + secretNumber);
-  // Now try and complete the program.
+  let secretNumber = await ask(`Is your number ${randomNum(1, 100)}?`);
+  
   process.exit();
 }
+
+
