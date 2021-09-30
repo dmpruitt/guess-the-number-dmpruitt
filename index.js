@@ -1,4 +1,4 @@
-const readline = require('readline');
+const readline = require("readline");
 const rl = readline.createInterface(process.stdin, process.stdout);
 
 function ask(questionText) {
@@ -16,9 +16,17 @@ function randomNum(min, max) {
 start();
 
 async function start() {
-  let secretNumber = await ask(`Is your number ${randomNum(1, 100)}?`);
+let guess = randomNum(1, 100); //assigns the random guess to a variable
+  let answer = await ask(`Is your number ${guess}?`); 
+if (answer[0].toLowerCase() === 'y') { //checks to see if first letter of response is a 'y'
+  console.log(`Your number was ${guess}`)
+}
+
+
+
+
   
-  process.exit();
+  process.exit();  
 }
 
 
