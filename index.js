@@ -16,23 +16,36 @@ function randomNum(min, max) {
 start();
 
 async function start() {
-  let rangeLow = 1;
-  let rangeHigh = 100;
-  let guess = randomNum(rangeLow, rangeHigh); //assigns the random guess to a variable
+  let rangeMin = 1;
+  let rangeMax = 100;
+  let random = randomNum(rangeMin, rangeMax); //assigns the random guess to a variable
+  let guess = random;
   let correct = false;
+  let answer = await ask(`Is your number ${guess}?`);
+  let numTries = 1;
+  console.log(numTries);
 
   while (correct === false) {
-    let answer = await ask(`Is your number ${guess}?`);
+    console.log(numTries);
 
-    if (answer[0].toLowerCase() === "y") {
+    if (answer[0].toLowerCase() === "y" || answer[0].toLowerCase() === "c") {
       console.log(`Your number was ${guess}!`); //checks to see if first letter of response is a 'y'
+      console.log(`This took ${numTries} tries.`);
       correct = true;
     } else {
-      answer = await ask("Is the number higher or lower?");
-      if (answer[0]toLowerCase() === "h"){
-        rangeHigh = answer;
-console.log((rangeHigh - rangeLow)/2 + rangeLow)
-
+      answer = await ask(
+        `My guess is ${guess}. \n Is your number \[H\]igher or \[L\]ower?`
+      );
+      numTries += 1; //increments number of tries
+      console.log(numTries);
+      if (answer[0].toLowerCase() === "h") {
+        rangeMin = guess + 1;
+        guess = Math.floor((rangeMax - rangeMin) / 2 + rangeMin);
+        console.log(answer);
+      } else {
+        rangeMax = guess - 1;
+        guess = Math.floor((rangeMax - rangeMin) / 2 + rangeMin);
+        console.log(answer);
       }
     }
   }
