@@ -7,6 +7,8 @@ function ask(questionText) {
   });
 }
 
+// While this if functional as the REVERSE GAME, this is included in the index.js for the icebox challenge for combining the games.
+
 // Asks if player wants to go again, makes gameOn to true if yes
 async function playAgain() {
     let again = "a"; // initialize

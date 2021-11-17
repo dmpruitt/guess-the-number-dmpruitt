@@ -1,6 +1,15 @@
 const readline = require("readline");
 const rl = readline.createInterface(process.stdin, process.stdout);
 
+// Global Variables
+let correct = false; // used
+let gameChoice = "0";
+let gameOn = true;
+let numTries = 0;
+let prompt = "\n --> ";
+let rangeMax = 100;
+let rangeMin = 1;
+
 function ask(questionText) {
   return new Promise((resolve, reject) => {
     rl.question(questionText, resolve);
@@ -25,67 +34,101 @@ async function chooseGame() {
 
 //This is the First game where the computer guesses the user's number.
 async function game1() {
-  await rangeUser(); // user sets the range
-  //console.log(rangeMax); // debug check
-  let random = randomNum(rangeMin, rangeMax); //assigns the random guess to a variable
-  let guess = random;
-  let answer = "a";
+  await rangeUser(); // user sets the max range
+
+  let computerGuess = Math.floor((rangeMax - rangeMin) / 2 + rangeMin);
+  let userAnswer = "a";
   numTries += 1;
+  let secretNumber = 0; // place to store the user's secret number
 
   while (correct === false) {
-    //console.log(numTries);
-    //answer = await ask(` Is your number ${guess}? \n \[Y\] or \[N\] ${prompt}`);
-    //numTries += 1;
-    while (
-      answer[0].toLowerCase !== "h" ||
-      answer[0].toLowerCase !== "l" ||
-      answer[0].toLowerCase !== "y"
-    ) {
-      answer = await ask(
-        `My guess is ${guess}. \n Is this correct? \[Y\] \n or is your number \[H\]igher or \[L\]ower? ${prompt}`
+    let userAnswerInRange = false; // used in the following loop to make sure the input is within the range set by the user for the game
+    while (userAnswerInRange === false) {
+      secretNumber = await ask(
+        ` Please enter your secret number. \n It needs to be a whole number between ${rangeMin} to ${rangeMax} ${prompt}`
       );
-      console.log(numTries);
-
-      // THIS CHEATER CHECK DOES NOT WORK YET
-
-      // if (answer[0].toLowerCase === 'h' && guess > rangeMax) {
-      //   console.log(
-      //     ` Your answer of ${answer} is out of the range specified. \n We don't tolerate cheaters up in these parts! `
-      //   );
-      //   correct === true;
-      //   process.exit();
-      // } else
-
-      if (answer[0].toLowerCase() === "y") {
-        correct = true;
-        console.log(`Your number was ${guess}!`);
-        console.log(`This took ${numTries} tries.`);
-        correct === true;
-        break;
-      } else if (answer[0].toLowerCase() === "h") {
-        rangeMin = guess + 1;
-        guess = Math.floor((rangeMax - rangeMin) / 2 + rangeMin);
-        //console.log(answer);
-        numTries += 1; //increments number of tries
-        //console.log(numTries);
+      secretNumber= parseInt(secretNumber)
+      if (secretNumber > rangeMin && secretNumber < rangeMax) {
+        userAnswerInRange = true;
       } else {
-        rangeMax = guess - 1;
-        guess = Math.floor((rangeMax - rangeMin) / 2 + rangeMin);
-        //console.log(answer);
-        numTries += 1; //increments number of tries
-        //console.log(numTries);
+        console.log(
+          ` \n<<<< Your answer of ${secretNumber} is out of range. >>>> \n `
+        );
+      }
+      // repeats until the entered number is within the range
+    } // End of While userAnswerInRange
+
+    // this loop will repeat until the correct answer is reached, or will exit if the user has cheated.
+    while (
+      userAnswer !== "h" ||
+      userAnswer !== "l" ||
+      userAnswer !== "y" ||
+      userAnswer !== "n"
+    ) {
+      userAnswer = await ask(
+        `My guess is ${computerGuess}. \n Is this correct? \[Y\] \n or \[N\] ${prompt}`
+      );
+      userAnswer = userAnswer[0].toLowerCase(); // cleaning up input
+      // console.log(numTries);
+
+      if (userAnswer === "y") {
+        // enter check in case user incorrectly enters a Y when their secrest number is a different number
+        if (secretNumber === computerGuess) {
+          correct = true;
+          console.log(`Your number was ${computerGuess}!`);
+          console.log(`This took ${numTries} tries.`);
+          break;
+        } else {
+          console.log(
+            ` Your answer of ${userAnswer} does not match your secret number of ${secretNumber}. \n We don't tolerate cheaters up in these parts! `
+          );
+        }
+        userAnswer = await ask(
+          `is your number \[H\]igher or \[L\]ower? ${prompt}`
+        );
+
+        if (userAnswer === "h") {
+          rangeMin = computerGuess + 1;
+          computerGuess = Math.floor((rangeMax - rangeMin) / 2 + rangeMin);
+          //console.log(answer);
+          numTries += 1; //increments number of tries
+          //console.log(numTries);
+        } else {
+          rangeMax = computerGuess - 1;
+          computerGuess = Math.floor((rangeMax - rangeMin) / 2 + rangeMin);
+          //console.log(answer);
+          numTries += 1; //increments number of tries
+          //console.log(numTries);
+        }
+
+        // CHEATER CHECK this section checks the secretNumber again the range generated by their answers.
+        if (secretNumber === computerGuess) {
+          console.log(
+            ` Your answer of ${userAnswer} does not match your secret number of ${secretNumber}. \n We don't tolerate cheaters up in these parts! `
+          );
+          process.exit();
+        } else if (secretNumber > rangeMax) {
+          // checks to see if their answer is truthful
+          console.log(
+            ` Your answer of ${userAnswer} is lower than your secret number. \n We don't tolerate cheaters up in these parts! `
+          );
+          process.exit();
+        } else if (secretNumber < rangeMin) {
+          console.log(
+            ` Your answer of ${userAnswer} is higher than your secret number. \n We don't tolerate cheaters up in these parts! `
+          );
+          process.exit();
+        }
+
+        variablesReset(); // resetting the variables to start from scratch
+        await playAgain(); // calls this function
+        if (gameOn === true) {
+          await game1();
+        }
       }
     }
-    console.log(numTries);
-  }
-
-  variablesReset(); // resetting the variables
-  await playAgain(); // play again?
-  if (gameOn === true) {
-    await game1();
   }
 }
-
 // This is the Second game where the user guesses the computer's number
 async function game2() {
   await rangeUser(); // user sets the range
@@ -130,14 +173,14 @@ async function game2() {
 
 // Asks if player wants to go again, makes gameOn to true if yes
 async function playAgain() {
-  let again = "a"; // initialize
-  while (again !== "y" && again !== "n") {
-    again = await ask(
+  let playAgain = "a"; // initializes the variable to
+  while (playAgain !== "y" && playAgain !== "n") {
+    playAgain = await ask(
       ` Would you like to play again? \n \[Y\] or \[N\] ${prompt}`
     );
-    again = again.toLowerCase();
+    playAgain = playAgain.toLowerCase();
   }
-  if (again === "y") {
+  if (playAgain === "y") {
     gameOn = true;
   } else {
     gameOn = false;
@@ -145,40 +188,26 @@ async function playAgain() {
   variablesReset(); // resetting the variables
 }
 
-// Random number generator
+// Random number generator creates a random integer between the min and max values
 function randomNum(min, max) {
   let range = max - min + 1;
   return Math.floor(Math.random() * range) + min;
 }
-
-// function rangeAdjust(higherLower, guess) {
-//   if (higherLower[0].toLowerCase() === "h") {
-//     rangeMin = guess + 1;
-//     guess = Math.floor((rangeMax - rangeMin) / 2 + rangeMin);
-//     //console.log(higherLower);
-//     numTries += 1; //increments number of tries
-//     //console.log(numTries);
-//   } else {
-//     rangeMax = guess - 1;
-//     guess = Math.floor((rangeMax - rangeMin) / 2 + rangeMin);
-//     //console.log(higherLower);
-//     numTries += 1; //increments number of tries
-//     //console.log(numTries);
-//   }
-// }
 
 // asking user what the maximum range should be
 async function rangeUser() {
   rangeMax = await ask(
     ` What would you like the highest number to be? \n Please enter a whole number greater than 1.${prompt}`
   );
-  rangeMax = parseFloat(rangeMax);
+  rangeMax = Math.round(parseInt(rangeMax));
+
   while (isNaN(rangeMax) || rangeMax <= 1) {
     // Check for Null or out of range ( <=1 )
     rangeMax = await ask(
       ` Oops! Let's try this again. \n Please enter a whole number greater than 1. ${prompt}`
     );
-    rangeMax = parseFloat(rangeMax);
+
+    rangeMax = Math.round(parseInt(rangeMax));
   } // End of Range input
 }
 
@@ -189,15 +218,6 @@ function variablesReset() {
   rangeMin = 1;
   rangeMax = 100;
 }
-
-// Global Variables
-let correct = false;
-let gameChoice = "0";
-let gameOn = true;
-let numTries = 0;
-let prompt = "\n --> ";
-let rangeMax = 100;
-let rangeMin = 1;
 
 // Main Program
 async function start() {
